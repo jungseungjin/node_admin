@@ -23,15 +23,24 @@ include master.pug
       let firstTime = 30
       for(var a = 1; a < 49; a++){
         let fakeTime = firstTime
-        fakeTime = '0'+fakeTime
+        
         if(a < 2){
           fakeTime = '0'+fakeTime
+          fakeTime = '0'+fakeTime
+        }else if(a < 20){
+          fakeTime = '0'+fakeTime
+        }else{
+
         }
         let option_val = moment(fakeTime,'HHmm').format('HHmm')
         let option_text = moment(option_val,'HHmm').format('HH시간mm분')
         let newOption = document.createElement('option')
         newOption.innerHTML = '<span>' + option_text + '</span>'
         newOption.value = option_val
+        if(a == 48){
+          newOption.innerHTML = '<span>' + '24시간00분' + '</span>'
+          newOption.value = '2400'
+        }
         if(option_val == $('#selectInputHidden').val()){
           newOption.selected = true
         }

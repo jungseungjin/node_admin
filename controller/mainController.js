@@ -173,7 +173,8 @@ const uploadFile = (fileName) => {
         StoreIntro,
         StoreCostIntro,
         CostOpen,
-        StoreHolidayChk;
+        StoreHolidayChk,
+        StoreBadge;
       //기본 변수들
       let OperationTimeMon = 0,
         OperationTimeTue = 0,
@@ -246,6 +247,8 @@ const uploadFile = (fileName) => {
           CostOpen = value;
         } else if (name == "StoreHolidayChk") {
           StoreHolidayChk = value;
+        } else if (name == "StoreBadge") {
+          StoreBadge = value;
         } else {
           if (name.indexOf("laborCost") != -1) {
             //{_id:1604573524408 index:9998 ,type:Number , laborName:String, laborCost1:Number,
@@ -541,6 +544,7 @@ const uploadFile = (fileName) => {
               store_holiday: StoreHolidayChk, //공휴일 판별기준??3번으로 날짜 지우기
               store_number: StoreNumber, //가게전화번호
               store_location: { type: "Point", coordinates: [lon, lat] },
+              store_badge: StoreBadge,
             }).save();
           }
           return res.send("Upload complete"); //여기서 디비에 저장 후 보내기
@@ -589,6 +593,7 @@ const uploadFile = (fileName) => {
                 store_holiday: StoreHolidayChk, //공휴일 판별기준??3번으로 날짜 지우기
                 store_number: StoreNumber, //가게전화번호
                 store_location: { type: "Point", coordinates: [lon, lat] },
+                store_badge: StoreBadge,
               },
             }
           );
