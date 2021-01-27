@@ -1,0 +1,117 @@
+doctype html
+head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    meta(name='description' content='')
+    meta(name='author' content='')
+    // Custom fonts for this template
+    link(href='/vendor/fontawesome-free/css/all.min.css' rel='stylesheet' type='text/css')
+    link(href='https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i' rel='stylesheet')
+    // Custom styles for this template
+    link(href='/css/sb-admin-2.min.css' rel='stylesheet')
+    link(href='/vendor/datatables/dataTables.bootstrap4.min.css' rel='stylesheet')
+    // Bootstrap core JavaScript
+    script(src='/vendor/jquery/jquery.min.js')
+    script(src='/vendor/bootstrap/js/bootstrap.bundle.min.js')
+    // Core plugin JavaScript
+    script(src='/vendor/jquery-easing/jquery.easing.min.js')
+    // Custom scripts for all pages
+    script(src='/js/sb-admin-2.min.js')
+    // Page level plugins
+    script(src='/vendor/chart.js/Chart.min.js')
+    // Page level custom scripts
+    script(src='/js/demo/chart-area-demo.js')
+    script(src='/js/demo/chart-pie-demo.js')
+    // Page level plugins
+    script(src='/vendor/datatables/jquery.dataTables.min.js')
+    script(src='/vendor/datatables/dataTables.bootstrap4.min.js')
+    // Page level custom scripts
+    script(src='/js/demo/datatables-demo.js')
+    script.
+        $(document).ready(function(){
+            let chk_data = [];
+            $('.Astep').click(function(){
+                let val = this.value;
+                location.href="/carfind?brand="+val
+            })
+            $('.Bstep').click(function(){
+                let val = this.value;
+                let now_url = window.location.href
+                if(now_url.indexOf('&') != -1){
+                    now_url = now_url.split('&');
+                    now_url = now_url[0]
+                }
+                location.href=now_url+"&model="+val
+            })
+            $('.Cstep').click(function(){
+                let car_name = this.value;
+                let car_id = $(this).next().val();
+                let car = {
+                    car_name : car_name,
+                    car_id : car_id,
+                }
+                let index = chk_data.findIndex(i => i.car_id == car.car_id);
+                if(index != -1){//있으면 삭제
+                    chk_data.splice(index,1);
+                    this.setAttribute("style","background:default")
+                }else{//없으면 푸시
+                    chk_data.push(car);                    
+                    this.setAttribute("style","background:grey")
+                }
+                let change_dom = document.getElementById("chk_model")
+                while ( change_dom.hasChildNodes() ) { change_dom.removeChild( change_dom.firstChild ); }
+
+                for(var a = 0 ; a < chk_data.length; a++){
+                    let newInput = document.createElement('input')
+                    let newInput2 = document.createElement('input')
+                    newInput.setAttribute("type","button")
+                    newInput.value = chk_data[a].car_name
+                    newInput2.setAttribute("type","hidden")
+                    newInput2.value = chk_data[a].car_id
+                    change_dom.appendChild(newInput)
+                    change_dom.appendChild(newInput2)
+                }
+            })
+            $('.close_btn').click(function(){
+                //opener.document.getElementById("WorkCategory").value = work_name
+                //opener.document.getElementById("WorkCategoryId").value = work_id
+                
+                //window.close();
+            })
+        })
+input(type="button",value="전체")
+h1.h3.mb-2.text-gray-800 국산
+div
+    if(carData_brand.length < 1)
+    else
+        each carData_brands in carData_brand
+            input.Astep(type="button" value=carData_brands.brand)
+    input.close_btn(type="button",value="닫기",style="position:absolute;right:0")
+h1.h3.mb-2.text-gray-800 수입
+div
+    if(carData_brand2.length < 1)
+    else
+        each carData_brand2s in carData_brand2
+            input.Astep(type="button" value=carData_brand2s.brand)
+div 
+div 
+h1.h3.mb-2.text-gray-800 차종
+div
+    if(carData_model.length < 1)
+    else
+        each carData_models in carData_model
+            input.Bstep(type="button" value=carData_models.model)
+div 
+div 
+h1.h3.mb-2.text-gray-800 세부모델
+div
+    if(carData_model_detail.length < 1)
+    else
+        each carData_model_details in carData_model_detail
+            input.Cstep(type="button" value=carData_model_details.model_detail)
+            input(type="hidden" value=carData_model_details._id)
+div 
+div 
+h1.h3.mb-2.text-gray-800 선택한 모델
+div#chk_model

@@ -1,0 +1,157 @@
+include master.pug
+  title SB Admin 2 - Dashboard
+  script(src='https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js')
+  script(src="//dapi.kakao.com/v2/maps/sdk.js?appkey=41bdf2ec8f5d9f761f50751e95d66b1a&libraries=services")
+  script(src='/js/moment.js')
+  include masterScript.pug
+  link(href='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css' rel='stylesheet')
+  script(src='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js')
+  script(src=" https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/lang/summernote-ko-KR.min.js")
+  
+  script.
+    $(document).ready(function(){
+      let url = window.location.href
+      url = url.split('register/')
+      url = url [1]
+      document.getElementById("store_id").value = url;
+      function showWin(url , name , options){
+        window.open(url , name , options)
+      }
+      $('#WorkCategoryShowWin').click(function(){
+        let options = 'top=10, left=10, width=800, height=600'
+        showWin("/workfind","작업종류선택",options)
+      })
+      $('#CarFinderShowWin').click(function(){
+        let options = 'top=10, left=10, width=800, height=600'
+        showWin("/carfind","차종선택",options)
+      })
+    })
+// Page Wrapper
+#wrapper
+  include masterSidebar.pug
+  // Content Wrapper
+  #content-wrapper.d-flex.flex-column
+    // Main Content
+    #content
+      include masterTopbar.pug
+      // Begin Page Content
+      .container-fluid
+        // Page Heading
+        h1.h3.mb-2.text-gray-800 작업 등록하기
+        p.mb-4
+          | DataTables is a third party plugin that is used to generate the demo table below.
+          | For more information about DataTables, please visit the 
+          a(target='_blank' href='https://datatables.net') official DataTables documentation
+          | .
+        // DataTales Example
+        form#imageTest(action="/workdata/register", method="POST",enctype="multipart/form-data")
+          .card.shadow.mb-4
+            .card-header.py-3
+              input#store_id(type="hidden" name="store_id")
+              h6.m-0.font-weight-bold.text-primary 작업이름
+              input#workName.form-control.form-control-user(type='text' name="workName"  placeholder='작업이름')
+              h6.m-0.font-weight-bold.text-primary#WorkCategoryShowWin 작업종류(클릭)
+              input#workCategory.form-control.form-control-user(type='text' name="workCategory"  placeholder='작업종류' readOnly)
+              input#workCategoryId(type="hidden" name="workCategoryId")
+              h6.m-0.font-weight-bold.text-primary#CarFinderShowWin 차종 비워두면 전체(클릭)
+              input#carFinder.form-control.form-control-user(name="carFinder", cols="40", rows="5" readOnly)
+              input#carFinderId(type="hidden" name="carFinderId")
+              h6.m-0.font-weight-bold.text-primary 썸네일 사진
+              input#workThumbnailImage(type="file" name="workThumbnailImage" accept="image/*;capture=camera" multiple)
+              h6.m-0.font-weight-bold.text-primary 작업소요시간
+              select(name="requireTime")
+                option(value="0030") 30분
+                option(value="0100") 1시간
+                option(value="0130") 1시간30분
+                option(value="0200") 2시간
+                option(value="0230") 2시간30분
+                option(value="0300") 3시간
+                option(value="0330") 3시간30분
+                option(value="0400") 4시간
+                option(value="0430") 4시간30분
+                option(value="0500") 5시간
+                option(value="0530") 5시간30분
+                option(value="0600") 6시간
+                option(value="0530") 6시간30분
+                option(value="0700") 7시간
+                option(value="0730") 7시간30분
+                option(value="0800") 8시간
+                option(value="0830") 8시간30분
+                option(value="0900") 9시간
+                option(value="0930") 9시간30분
+                option(value="1000") 10시간
+                option(value="1030") 10시간30분
+                option(value="1100") 11시간
+                option(value="1130") 11시간30분
+                option(value="1200") 12시간
+                option(value="1230") 12시간30분
+                option(value="1300") 13시간
+                option(value="1330") 13시간30분
+                option(value="1400") 14시간
+                option(value="1430") 14시간30분
+                option(value="1500") 15시간
+              h6.m-0.font-weight-bold.text-primary 당일기준 최소예약가능일
+              select(name="requireDay")
+                option(value="0") 당일
+                option(value="1") 1일
+                option(value="2") 2일
+                option(value="3") 3일
+                option(value="4") 4일
+                option(value="5") 5일
+              h6.m-0.font-weight-bold.text-primary 작업 총 가격 // 공임가격 // 총가격만 표시하려면 공임가격칸 비워두기or0
+              div
+                input#workCost.form-control-user(type='Number' name="workCost" placeholder='작업 총 가격')
+                input#laborCost.form-control-user(type='Number' name="laborCost" placeholder='공임가격')
+              h6.m-0.font-weight-bold.text-primary 작업소개
+              textarea(name="summernote", cols="30", rows="10")#summernote
+              input.btn.btn-primary.btn-user.btn-block(type="submit" value ="등록")
+      // /.container-fluid
+    // End of Main Content
+    include masterFooter.pug
+  // End of Content Wrapper
+  script.
+    $('#summernote').summernote({
+      placeholder: 'Hello stand alone ui',
+      tabsize: 2,
+      minHeight:300,
+      height: 600,
+      lang: "ko-KR",
+      toolbar: [
+      ['style', ['style']],
+      ['font', ['bold', 'underline', 'clear']],
+      ['color', ['color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['table', ['table']],
+      ['insert', ['link', 'picture', 'video']],
+      ['view', ['fullscreen', 'codeview', 'help']]
+      ],
+      callbacks: {	//여기 부분이 이미지를 첨부하는 부분
+        onImageUpload : function(files) {
+          sendFile(files[0],this);
+        },
+      }
+    });
+
+    function sendFile(file,editor) {
+      var data = new FormData();
+      data.append("file", file);
+      console.log(file)
+      $.ajax({
+        type: "POST",
+        url: "/work/image",
+        type: 'POST',
+        data: data,
+        async: false,
+        contentType: false,
+        processData: false, // Don't process the files
+        success: function(data) {
+          console.log(data)
+          $(editor).summernote("insertImage", data.url);
+        }
+      });
+    }
+// End of Page Wrapper
+// Scroll to Top Button
+a.scroll-to-top.rounded(href='#page-top')
+  i.fas.fa-angle-up
+    include masterLogoutModal.pug

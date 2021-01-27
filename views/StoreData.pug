@@ -1,0 +1,509 @@
+include master.pug
+  title SB Admin 2 - Dashboard
+  script(src='https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js')
+  script(src="//dapi.kakao.com/v2/maps/sdk.js?appkey=41bdf2ec8f5d9f761f50751e95d66b1a&libraries=services")
+  script(src='/js/moment.js')
+  script.
+    document.addEventListener("DOMContentLoaded", function(){
+        let make_option = function(){
+            let firstTime = 700
+            for(var a = 0 ; a < 32 ; a++){
+                let fake_time
+                if(a < 6){
+                    fake_time = '0'+ firstTime
+                }else{
+                    fake_time = firstTime
+                }
+                let Time = moment(fake_time,'HHmm').format('HH:mm')
+                for(var b = 1; b < !{data.store_operation_time.length}+1; b++){
+                    let chk_value1 = document.getElementById("OperationTimeStart" + b).getAttribute('class');
+                    let newOption = document.createElement('option')
+                    newOption.innerHTML = '<span>' + Time + '</span>'
+                    newOption.value = fake_time
+                    if(chk_value1 == newOption.value){
+                        newOption.selected = true
+                    }
+                    document.getElementById("OperationTimeStart" + b).appendChild(newOption);
+
+                    let chk_value2 = document.getElementById("OperationTimeEnd" + b).getAttribute('class');
+                    let newOption2 = document.createElement('option')
+                    newOption2.innerHTML = '<span>' + Time + '</span>'
+                    newOption2.value = fake_time
+                    if(chk_value2 == newOption2.value){
+                        newOption2.selected = true
+                    }
+                    document.getElementById("OperationTimeEnd" + b).appendChild(newOption2);
+                }
+                if(a%2 == 0){
+                    firstTime = firstTime + 30
+                }else if(a%2 == 1){
+                    firstTime = firstTime + 70
+                }
+            }
+
+        }
+        make_option()
+      document.getElementById("OperationTimePlus").addEventListener('click',function(){
+        let chk_count = document.getElementById('OperationTimeList').childElementCount;
+        if(chk_count == 7){return false;}
+        chk_count = chk_count+1
+        let newOperationTimeDiv = document.createElement('div')
+        newOperationTimeDiv.setAttribute('class','OperationTime');
+        newOperationTimeDiv.innerHTML = '<div><span>월</span><input type="checkbox" value="1" name=' + "OperationTimeMon" + chk_count + '><span>화</span><input type="checkbox" value="2" name=' + "OperationTimeTue" + chk_count + '><span>수</span><input type="checkbox" value="3" name=' + "OperationTimeWen" + chk_count + '><span>목</span><input type="checkbox" value="4" name=' + "OperationTimeThu" + chk_count + '><span>금</span><input type="checkbox" value="5" name=' + "OperationTimeFri" + chk_count + '><span>토</span><input type="checkbox" value="6" name=' + "OperationTimeSat" + chk_count + '><span>일</span><input type="checkbox" value="7" name=' + "OperationTimeSun" + chk_count + '><select name=' + "OperationTimeStart" + chk_count + ' id=' + "OperationTimeStart" + chk_count + '></select><select name=' + "OperationTimeEnd" + chk_count + ' id=' + "OperationTimeEnd" + chk_count + ' ></select></div>'
+        document.getElementById("OperationTimeList").appendChild(newOperationTimeDiv);
+        let firstTime = 700
+        for(var a = 0 ; a < 32 ; a++){
+          let fake_time
+          if(a < 6){
+            fake_time = '0'+ firstTime
+          }else{
+            fake_time = firstTime
+          }
+          let Time = moment(fake_time,'HHmm').format('HH:mm')
+          let newOption = document.createElement('option')
+          newOption.innerHTML = '<span>' + Time + '</span>'
+          newOption.value = fake_time
+          document.getElementById("OperationTimeStart" + chk_count).appendChild(newOption);
+
+          let newOption2 = document.createElement('option')
+          newOption2.innerHTML = '<span>' + Time + '</span>'
+          newOption2.value = fake_time
+          document.getElementById("OperationTimeEnd" + chk_count).appendChild(newOption2);
+          if(a%2 == 0){
+            firstTime = firstTime + 30
+          }else if(a%2 == 1){
+            firstTime = firstTime + 70
+          }
+        }
+      })
+      document.getElementById("holidayPlus").addEventListener('click',function(){
+        let chk_count = document.getElementById('holidayList').childElementCount;
+        if(chk_count == 7){return false;}
+        chk_count = chk_count+1
+        let newHolidayDiv = document.createElement('div')
+        newHolidayDiv.setAttribute('class','holiday');
+        newHolidayDiv.innerHTML = '<div><select name=' + "holidayWeek"+chk_count + '><option value="1"><span>1주</span></option><option value="2"><span>2주</span></option><option value="3"><span>3주</span></option><option value="4"><span>4주</span></option><option value="5"><span>5주</span></option><option value="6"><span>6주</span></option></select><select name=' + "holidayDay"+chk_count + '><option value="mon"><span>월</span></option><option value="tue"><span>화</span></option><option value="wen"><span>수</span></option><option value="thu"><span>목</span></option><option value="fri"><span>금</span></option><option value="sat"><span>토</span></option><option value="sun"><span>일</span></option></select></div>'
+        document.getElementById("holidayList").appendChild(newHolidayDiv);
+      })
+      document.getElementById("tmpHolidayPlus").addEventListener('click',function(){
+        let chk_count = document.getElementById('tmpHolidayList').childElementCount;
+        if(chk_count == 7){return false;}
+        chk_count = chk_count+1
+        let newTmpHolidayDiv = document.createElement('div')
+        newTmpHolidayDiv.setAttribute('class','tmpHoliday');
+        newTmpHolidayDiv.innerHTML = '<div><input type="Date" name=' + "tmpHolidayStart"+chk_count + '><input type="Date" name=' + "tmpHolidayEnd"+chk_count + '></div>'
+        document.getElementById("tmpHolidayList").appendChild(newTmpHolidayDiv);
+      })
+
+    var elements = document.getElementsByClassName("data_btn");
+    var myFunction = function() {
+        let data = this.value;
+        let get_id = document.getElementById("_id").value;
+        if(data == '작업등록'){
+            location.href="/work/register/"+get_id
+        }else{
+            var httpRequest = new XMLHttpRequest();
+            if(!httpRequest) {
+            alert('XMLHTTP 인스턴스를 만들 수가 없어요 ㅠㅠ');
+            return false;
+            }
+            httpRequest.onreadystatechange = alertContents;
+            httpRequest.open('POST', '/storedata');//GET일땨는 GET으로
+            httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');//GET일때는 빼
+            function alertContents() {
+                if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                    if (httpRequest.status === 200) {
+                        var response = JSON.parse(httpRequest.responseText);
+                        if(response == "ok"){
+                            location.href="/store/list"
+                        }else{
+                            location.href="/index"
+                        }
+                    } else {
+                    alert('request에 뭔가 문제가 있어요.');
+                    }
+                }
+            }
+            if(data == '숨김'){
+                httpRequest.send('type=' + 'hide' + '&_id=' + encodeURIComponent(get_id) );
+            }else if(data == '삭제'){
+                httpRequest.send('type=' + 'del' + '&_id=' + encodeURIComponent(get_id) );
+            }
+        } 
+    };
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('click', myFunction, false);
+    }
+    });
+  script.
+      var element_wrap
+      document.addEventListener("DOMContentLoaded", function(){
+        element_wrap = document.getElementById('wrap');
+      })
+      
+      // 우편번호 찾기 찾기 화면을 넣을 element
+      function foldDaumPostcode() {
+      // iframe을 넣은 element를 안보이게 한다.
+        element_wrap.style.display = 'none';
+      }
+      function sample3_execDaumPostcode() {
+        // 현재 scroll 위치를 저장해놓는다.
+        var currentScroll = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+        new daum.Postcode({
+          oncomplete: function(data) {
+            Promise.resolve(data).then(o => {
+                const { address } = data;
+
+                return new Promise((resolve, reject) => {
+                    const geocoder = new daum.maps.services.Geocoder();
+
+                    geocoder.addressSearch(address, (result, status) =>{
+                        if(status === daum.maps.services.Status.OK){
+                            const { x, y } = result[0];
+
+                            resolve({ lat: y, lon: x })
+                        }else{
+                            reject();
+                        }
+                    });
+                })
+            }).then(result => {
+              console.log(result.lon)//경도가 먼저
+              document.getElementById("lon").value = result.lon
+              console.log(result.lat)//위도가 나중에
+              document.getElementById("lat").value = result.lat
+                // 위, 경도 결과 값
+            });
+            // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+            // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var addr = ''; // 주소 변수
+            var extraAddr = ''; // 참고항목 변수
+            //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+            if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+              addr = data.roadAddress;
+            } else { // 사용자가 지번 주소를 선택했을 경우(J)
+              addr = data.jibunAddress;
+            }
+            // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+            if(data.userSelectedType === 'R'){
+              // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+              // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+              if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                extraAddr += data.bname;
+              }
+              // 건물명이 있고, 공동주택일 경우 추가한다.
+              if(data.buildingName !== '' && data.apartment === 'Y'){
+                extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+              }
+              // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+              if(extraAddr !== ''){
+                extraAddr = ' (' + extraAddr + ')';
+              }
+              // 조합된 참고항목을 해당 필드에 넣는다.
+              document.getElementById("sample3_extraAddress").value = extraAddr;
+            } else {
+              document.getElementById("sample3_extraAddress").value = '';
+            }
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.getElementById('sample3_postcode').value = data.zonecode;
+            document.getElementById("sample3_address").value = addr;
+            // 커서를 상세주소 필드로 이동한다.
+            document.getElementById("sample3_detailAddress").focus();
+            // iframe을 넣은 element를 안보이게 한다.
+            // (autoClose:false 기능을 이용한다면, 아래 코드를 제거해야 화면에서 사라지지 않는다.)
+            element_wrap.style.display = 'none';
+            // 우편번호 찾기 화면이 보이기 이전으로 scroll 위치를 되돌린다.
+            document.body.scrollTop = currentScroll;
+          },
+          // 우편번호 찾기 화면 크기가 조정되었을때 실행할 코드를 작성하는 부분. iframe을 넣은 element의 높이값을 조정한다.
+          onresize : function(size) {
+            element_wrap.style.height = size.height+'px';
+          },
+          width : '100%',
+          height : '100%'
+        }).embed(element_wrap);
+        // iframe을 넣은 element를 보이게 한다.
+        element_wrap.style.display = 'block';
+      }
+  script(src='/vendor/jquery/jquery.min.js')
+  script.
+    $(document).ready(function(){
+      function confirm_work(message , url, data){
+        var con_test = confirm(message);
+        if(con_test == true){
+            $.ajax({
+                type: "POST",
+                url: "/workdata/" + url,
+                async: false,
+                data : JSON.stringify(data),
+                contentType: 'application/json',
+                dataType: 'json',
+                processData: false, // Don't process the files
+                success: function(data) {
+                  location.reload();
+            }})
+        }else if(con_test == false){
+          return false
+        }
+      }
+      $('.workStop').click(function(){
+        let data_id = $(this).parent().parent().children().val();
+        confirm_work("일시정지",'stop',{_id:data_id})
+      })
+      $('.workDelete').click(function(){
+        let data_id = $(this).parent().parent().children().val();
+        confirm_work("삭제",'del',{_id:data_id})
+      })
+      $('.workOpen').click(function(){
+        let data_id = $(this).parent().parent().children().val();
+        confirm_work("다시시작",'open',{_id:data_id})
+      })
+      $('.data_tr').click(function(){
+        let data_id = $(this).parent().children().val();
+        location.href = "/workdata?_id="+data_id
+      })
+    })
+// Page Wrapper
+#wrapper
+  include masterSidebar.pug
+  // Content Wrapper
+  #content-wrapper.d-flex.flex-column
+    // Main Content
+    #content
+      include masterTopbar.pug
+      // Begin Page Content
+      .container-fluid
+        // Page Heading
+        h1.h3.mb-2.text-gray-800 가게 정보
+        div
+            input#_id(type="hidden",value=data._id)
+            input.data_btn(type="button" value="작업등록")
+            input.data_btn(type="button" value="숨김")
+            input.data_btn(type="button" value="삭제")
+        // DataTales Example
+        form#imageTest(action="/store/revise", method="POST",enctype="multipart/form-data")
+          .card.shadow.mb-4
+            .card-header.py-3
+              h6.m-0.font-weight-bold.text-primary 가게상호명
+              input#StoreName.form-control.form-control-user(type='text' name="StoreName"  placeholder='가게상호명' value=data.store_name)
+              input(type="hidden" name="forReviseId" value=data._id)
+              h6.m-0.font-weight-bold.text-primary 가게로고이미지
+              img(src=data.store_logo_image style="width:160px;height:100px;")
+              input#StoreLogoImage(type="file" name="StoreLogoImage" accept="image/*;capture=camera")
+              h6.m-0.font-weight-bold.text-primary 가게전체모습이미지
+              img(src=data.store_image style="width:160px;height:100px;")
+              input#StoreImage(type="file" name="StoreImage" accept="image/*;capture=camera")
+              h6.m-0.font-weight-bold.text-primary 대표자명
+              input#StoreCEO.form-control.form-control-user(type='text' name="StoreCEO"  placeholder='대표자명' value=data.store_ceo)
+              h6.m-0.font-weight-bold.text-primary 생년월일
+              input#StoreCEOBirthday.form-control.form-control-user(type='Date' name="StoreCEOBirthday" placeholder='생년월일' value=data.store_ceo_birthday)
+              h6.m-0.font-weight-bold.text-primary 사업장주소
+              input#sample3_postcode(type='text' name="sample3_postcode" placeholder='우편번호' value=data.store_post_code)
+              input(type='button' onclick='sample3_execDaumPostcode()' value='우편번호 찾기')
+              br
+              input#sample3_address(type='text' name="sample3_address" placeholder='주소' value=data.store_address)
+              br
+              input#sample3_detailAddress(type='text' name="sample3_detailAddress" placeholder='상세주소' value=data.store_address_detail)
+              input#sample3_extraAddress(type='text' name="sample3_extraAddress" placeholder='참고항목' value=data.store_address_ref)
+              input#lon(type="hidden",name="lon" value=data.store_location.coordinates[0])
+              input#lat(type="hidden",name="lat" value=data.store_location.coordinates[1])
+              #wrap(style='display:none;border:1px solid;width:500px;height:300px;margin:5px 0;position:relative')
+                img#btnFoldWrap(src='//t1.daumcdn.net/postcode/resource/images/close.png' style='cursor:pointer;position:absolute;right:0px;top:-1px;z-index:1' onclick='foldDaumPostcode()' alt='접기 버튼')
+              h6.m-0.font-weight-bold.text-primary 매장전화번호
+              input#StoreNumber(type='tel' name="StoreNumber"  title='전화번호를 입력하세요.' placeholder='전화번호' maxlength='13' value=data.store_number)
+              h6.m-0.font-weight-bold.text-primary 사업자등록번호
+              input#StoreRegisterNumber.form-control.form-control-user(type='Number' name="StoreRegisterNumber"  placeholder='Enter Your Id' value=data.store_register)
+              h6.m-0.font-weight-bold.text-primary 사업자등록증이미지
+              img(src=data.store_register_image style="width:160px;height:100px;")
+              input#StoreRegisterImage(type="file" name="StoreRegisterImage" accept="image/*;capture=camera")
+              h6.m-0.font-weight-bold.text-primary 튜닝카테고리 - 1퍼포먼스 2드레스업 3편의장치 4캠핑카 (ex-퍼포먼스 캠핑카를 하면 14 로 작성)
+              input#StoreCategory.form-control.form-control-user(type='Number' name="StoreCategory" placeholder='1234' value=data.store_category)
+              h6.m-0.font-weight-bold.text-primary 가게소개
+              textarea#StoreIntro.form-control.form-control-user(cols="40" rows="8" name="StoreIntro" placeholder='Enter Your Id') !{data.store_info}
+              h6.m-0.font-weight-bold.text-primary 우리가게 공임표 (가격 범위가 없으면 최소비용에만 입력,삭제는 마지막것부터,공임목록은 최대 5개까지)
+              div.btn.btn-primary.btn-user.btn-block#laborCostPlus 공임목록 추가
+              div#laborList
+                if(data.store_labor_cost.length < 1)
+                else
+                    -for(var a=0;a<data.store_labor_cost.length;a++)
+                        div.laborCost
+                            input.form-control-user(type="text" placeholder="공임이름" name='laborCostName'+(a+1)+'' value=data.store_labor_cost[a].laborName)
+                            input.form-control-user(type="text" placeholder="공임최소비용" name='laborCostMin'+(a+1)+'' value=data.store_labor_cost[a].laborCost1)
+                            if(data.store_labor_cost[a].type == 1)
+                                input.form-control-user(type="text" placeholder="공임최대비용" name='laborCostMax'+(a+1)+'' value=data.store_labor_cost[a].laborCost2)
+                            else
+                                input.form-control-user(type="text" placeholder="공임최대비용" name='laborCostMax'+(a+1)+'')
+              h6.m-0.font-weight-bold.text-primary 공임참고사항
+              textarea#StoreCostIntro.form-control.form-control-user(cols="40" rows="8" name="StoreCostIntro" placeholder='Enter Your Id' ) !{data.store_labor_cost_info}
+              h6.m-0.font-weight-bold.text-primary 공임표 공개여부
+                if(data.store_labor_cost_open)
+                    label(for="radio-1") 공개
+                        input(type="radio" name="CostOpen" id="radio-1" value="true" checked)
+                    label(for="radio-2") 비공개
+                        input(type="radio" name="CostOpen" id="radio-2" value="false" )
+                else
+                    label(for="radio-1") 공개
+                        input(type="radio" name="CostOpen" id="radio-1" value="true" )
+                    label(for="radio-2") 비공개
+                        input(type="radio" name="CostOpen" id="radio-2" value="false" checked)
+              h6.m-0.font-weight-bold.text-primary 영업시간 설정(최대 7개)
+              div.btn.btn-primary.btn-user.btn-block#OperationTimePlus 영업시간 설정 추가
+              div#OperationTimeList
+                if(data.store_operation_time.length < 1)
+                else
+                    -for(var a = 0 ; a < data.store_operation_time.length; a++)
+                        div.OperationTime
+                            div 
+                                -for(var b = 1 ; b < 8; b++)
+                                    -let day
+                                    -let engDay
+                                    if(b == 1)
+                                        -day = "월"
+                                        -engDay = "Mon"
+                                    if(b == 2)
+                                        -day = "화"
+                                        -engDay = "Tue"
+                                    if(b == 3)
+                                        -day = "수"
+                                        -engDay = "Wen"
+                                    if(b == 4)
+                                        -day = "목"
+                                        -engDay = "Thu"
+                                    if(b == 5)
+                                        -day = "금"
+                                        -engDay = "Fri"
+                                    if(b == 6)
+                                        -day = "토"
+                                        -engDay = "Sat"
+                                    if(b == 7)
+                                        -day = "일"
+                                        -engDay = "Sun"
+                                    if(data.store_operation_time[a].workday == b)
+                                        span !{day}
+                                        input(type="checkbox" value=b name='OperationTime' +engDay+(a+1)+'' checked)
+                                    else
+                                        span !{day}
+                                        input(type="checkbox" value=b name='OperationTime' +engDay+(a+1)+'')
+                                -let replace_startTime = data.store_operation_time[a].startTime.replace(':','')
+                                -let replace_endTime = data.store_operation_time[a].endTime.replace(':','')
+                                select(name='OperationTimeStart'+(a+1)+'' id='OperationTimeStart'+(a+1)+'' value=replace_startTime class=replace_startTime)
+                                select(name='OperationTimeEnd'+(a+1)+'' id='OperationTimeEnd'+(a+1)+'' value=replace_endTime class=replace_endTime)
+              h6.m-0.font-weight-bold.text-primary 휴무일 설정 매달 몇째주 무슨요일
+              div.btn.btn-primary.btn-user.btn-block#holidayPlus 휴무일 설정 추가
+              div#holidayList
+                if(data.store_closed_day.length < 1)
+                else
+                    -for(var a = 0 ; a < data.store_closed_day.length; a++)
+                        div.holidayList
+                            div
+                                select(name='holidayWeek'+(a+1)+'' value=data.store_closed_day[a].week)
+                                    -for(var b = 1; b < 7 ; b++)
+                                        if(data.store_closed_day[a].week == b)
+                                            option(value=b selected) !{b}주
+                                        else
+                                            option(value=b) !{b}주
+                                select(name='holidayDay'+(a+1)+'' value=data.store_closed_day[a].day)
+                                    if(data.store_closed_day[a].day == 'mon')
+                                        option(value="mon" selected) 월
+                                    else
+                                        option(value="mon") 월
+                                    if(data.store_closed_day[a].day == 'tue')
+                                        option(value="tue" selected) 화
+                                    else
+                                        option(value="tue") 화
+                                    if(data.store_closed_day[a].day == 'wen')
+                                        option(value="wen" selected) 수
+                                    else
+                                        option(value="wen") 수
+                                    if(data.store_closed_day[a].day == 'thu')
+                                        option(value="thu" selected) 목
+                                    else
+                                        option(value="thu") 목
+                                    if(data.store_closed_day[a].day == 'fri')
+                                        option(value="fri" selected) 금
+                                    else
+                                        option(value="fri") 금
+                                    if(data.store_closed_day[a].day == 'sat')
+                                        option(value="sat" selected) 토
+                                    else
+                                        option(value="sat") 토
+                                    if(data.store_closed_day[a].day == 'sun')
+                                        option(value="sun" selected) 일
+                                    else
+                                        option(value="sun") 일
+              h6.m-0.font-weight-bold.text-primary 임시휴무일 설정
+              div.btn.btn-primary.btn-user.btn-block#tmpHolidayPlus 임시휴무일 설정 추가
+              div#tmpHolidayList
+                if(data.store_closed_day_temp.length < 1)
+                else
+                    -for(var a = 0 ; a < data.store_closed_day_temp.length; a++)
+                        div.tmpHoliday
+                            div
+                                input(type="Date" name='tmpHolidayStart'+(a+1)+'' value=data.store_closed_day_temp[a].startDay)
+                                input(type="Date" name='tmpHolidayEnd'+(a+1)+'' value=data.store_closed_day_temp[a].endDay)
+              h6.m-0.font-weight-bold.text-primary 공휴일휴무 설정 체크박스
+                if(data.store_holiday)
+                    label(for="radio-1") 휴무
+                        input(type="radio" name="StoreHolidayChk" id="radio-11" value="true" checked)
+                    label(for="radio-2") 비휴무
+                        input(type="radio" name="StoreHolidayChk" id="radio-12" value="false" )
+                else
+                    label(for="radio-1") 휴무
+                        input(type="radio" name="StoreHolidayChk" id="radio-11" value="true" )
+                    label(for="radio-2") 비휴무
+                        input(type="radio" name="StoreHolidayChk" id="radio-12" value="false" checked)
+              input.btn.btn-primary.btn-user.btn-block(type="submit" value ="수정")
+          .card-body
+            .table-responsive
+              table#dataTable.table.table-bordered(width='100%' cellspacing='0')
+                thead
+                  tr
+                    th 작업 이름
+                    th 작업시간
+                    th 최소예약가능일
+                    th 전체가격
+                    th 공임공개 여부
+                    th 기타
+                tfoot
+                  tr
+                    th 작업 이름
+                    th 작업시간
+                    th 최소예약가능일
+                    th 전체가격
+                    th 공임공개 여부
+                    th 기타
+                tbody
+                  if(data.length < 1)
+                    tr
+                      td 데이터 없음.
+                      td 
+                      td 
+                      td 
+                      td 
+                      td 
+                  else
+                    each work_datas in work_data
+                      tr
+                        input.data_tr(type="hidden",value=work_datas._id)
+                        td.data_tr !{work_datas.store_work_name}
+                        td.data_tr !{work_datas.store_work_time}
+                        td.data_tr !{work_datas.store_work_need_day}
+                        td.data_tr !{work_datas.store_work_total_cost}
+                        td.data_tr !{work_datas.store_work_cost_open}
+                        td 
+                          if(work_datas.store_work_stop == true)
+                            input.workOpen(type="button",value="다시시작")
+                          else
+                            input.workStop(type="button",value="일시정지")
+                          input.workDelete(type="button",value="삭제")
+      // /.container-fluid
+    // End of Main Content
+    include masterFooter.pug
+  // End of Content Wrapper
+// End of Page Wrapper
+// Scroll to Top Button
+a.scroll-to-top.rounded(href='#page-top')
+  i.fas.fa-angle-up
+    include masterLogoutModal.pug
+    include masterScript.pug

@@ -1,0 +1,153 @@
+doctype html
+head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    meta(name='description' content='')
+    meta(name='author' content='')
+    // Custom fonts for this template
+    link(href='/vendor/fontawesome-free/css/all.min.css' rel='stylesheet' type='text/css')
+    link(href='https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i' rel='stylesheet')
+    // Custom styles for this template
+    link(href='/css/sb-admin-2.min.css' rel='stylesheet')
+    link(href='/vendor/datatables/dataTables.bootstrap4.min.css' rel='stylesheet')
+    // Bootstrap core JavaScript
+    script(src='/vendor/jquery/jquery.min.js')
+    script(src='/vendor/bootstrap/js/bootstrap.bundle.min.js')
+    // Core plugin JavaScript
+    script(src='/vendor/jquery-easing/jquery.easing.min.js')
+    // Custom scripts for all pages
+    script(src='/js/sb-admin-2.min.js')
+    // Page level plugins
+    script(src='/vendor/chart.js/Chart.min.js')
+    // Page level custom scripts
+    script(src='/js/demo/chart-area-demo.js')
+    script(src='/js/demo/chart-pie-demo.js')
+    // Page level plugins
+    script(src='/vendor/datatables/jquery.dataTables.min.js')
+    script(src='/vendor/datatables/dataTables.bootstrap4.min.js')
+    // Page level custom scripts
+    script(src='/js/demo/datatables-demo.js')
+    script.
+        $(document).ready(function(){
+            let chk_data = [];
+            $('.Astep').click(function(){
+                let work_type
+                if(this.value == "드레스업"){
+                    work_type = 1
+                }else if(this.value == "퍼포먼스"){
+                    work_type = 2
+                }else if(this.value == "편의장치"){
+                    work_type = 3
+                }else if(this.value == "캠핑카"){
+                    work_type = 4
+                }
+                $.ajax({
+                    type: "GET",
+                    url: "/workfind?work_type="+work_type,
+                    async: false,
+                    contentType: false,
+                    processData: false, // Don't process the files
+                    success: function(data) {
+                        console.log(data)
+                        console.log(data.length)
+                        let change_dom = document.getElementById("Bstep")
+                        while ( change_dom.hasChildNodes() ) { change_dom.removeChild( change_dom.firstChild ); }
+                        for(var a = 0 ; a < data.length; a++){
+                            let newInput = document.createElement('input')
+                            newInput.setAttribute("class","Bstep")
+                            newInput.setAttribute("type","button")
+                            newInput.value = data[a].work_sub_type_name
+                            change_dom.appendChild(newInput)
+                        }
+                        $(document).ready(function(){
+                            $('.Bstep').click(function(){
+                                $.ajax({
+                                    type: "GET",
+                                    url: "/workfind?work_sub_type_name="+this.value,
+                                    async: false,
+                                    contentType: false,
+                                    processData: false, // Don't process the files
+                                    success: function(data) {
+                                        let change_dom = document.getElementById("Cstep")
+                                        while ( change_dom.hasChildNodes() ) { change_dom.removeChild( change_dom.firstChild ); }
+                                        for(var a = 0 ; a < data.length; a++){
+                                            let newInput = document.createElement('input')
+                                            newInput.setAttribute("class","Cstep")
+                                            newInput.setAttribute("type","button")
+                                            newInput.value = data[a].work_name
+                                            change_dom.appendChild(newInput)
+                                            let newInput2 = document.createElement('input')
+                                            newInput2.setAttribute("type","hidden")
+                                            newInput2.value = data[a]._id
+                                            change_dom.appendChild(newInput2)
+                                        }
+                                        $(document).ready(function(){
+                                            $('.Cstep').click(function(){
+                                                let work_name = this.value;
+                                                let work_id = $(this).next().val();
+                                                let work = {
+                                                    work_name : work_name,
+                                                    work_id : work_id,
+                                                }
+                                                let index = chk_data.findIndex(i => i.work_id == work.work_id);
+                                                if(index != -1){//있으면 삭제
+                                                    chk_data.splice(index,1);
+                                                    this.setAttribute("style","background:default")
+                                                }else{//없으면 푸시
+                                                    chk_data.push(work);                    
+                                                    this.setAttribute("style","background:grey")
+                                                }
+                                                let change_dom = document.getElementById("chk_work")
+                                                while ( change_dom.hasChildNodes() ) { change_dom.removeChild( change_dom.firstChild ); }
+
+                                                for(var a = 0 ; a < chk_data.length; a++){
+                                                    let newInput = document.createElement('input')
+                                                    let newInput2 = document.createElement('input')
+                                                    newInput.setAttribute("type","button")
+                                                    newInput.value = chk_data[a].work_name
+                                                    newInput2.setAttribute("type","hidden")
+                                                    newInput2.value = chk_data[a].work_id
+                                                    change_dom.appendChild(newInput)
+                                                    change_dom.appendChild(newInput2)
+                                                }
+                                            })
+                                        })
+                                    }
+                                })
+                            })
+                        })
+                    }
+                })
+            })
+            $('.close_btn').click(function(){
+                let CarModelString = '';
+                let CarModelId = '';
+                for(var a = 0 ; a < chk_data.length; a++){
+                    if(a-1 == chk_data.length){
+                        CarModelString += chk_data[a].work_name
+                    }else{
+                        CarModelString += chk_data[a].work_name + ','
+                    }
+                    CarModelId +=  chk_data[a].work_id + '//'
+                }
+                opener.document.getElementById("workCategory").value = CarModelString
+                opener.document.getElementById("workCategoryId").value = CarModelId
+                
+                window.close();
+            })
+        })
+h1.h3.mb-2.text-gray-800 대분류
+div
+    input.Astep(type="button", value="드레스업")
+    input.Astep(type="button", value="퍼포먼스")
+    input.Astep(type="button", value="편의장치")
+    input.Astep(type="button", value="캠핑카")
+    input.close_btn(type="button",value="닫기",style="position:absolute;right:0")
+h1.h3.mb-2.text-gray-800 중분류
+div#Bstep
+h1.h3.mb-2.text-gray-800 소분류
+div#Cstep
+div 
+h1.h3.mb-2.text-gray-800 선택한 작업
+div#chk_work

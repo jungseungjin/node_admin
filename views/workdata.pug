@@ -1,0 +1,152 @@
+include master.pug
+  title SB Admin 2 - Dashboard
+  script(src='https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js')
+  script(src="//dapi.kakao.com/v2/maps/sdk.js?appkey=41bdf2ec8f5d9f761f50751e95d66b1a&libraries=services")
+  script(src='/js/moment.js')
+  include masterScript.pug
+  link(href='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css' rel='stylesheet')
+  script(src='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js')
+  script(src=" https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/lang/summernote-ko-KR.min.js")
+  script.
+    $(document).ready(function(){
+      function showWin(url , name , options){
+        window.open(url , name , options)
+      }
+      $('#WorkCategoryShowWin').click(function(){
+        let options = 'top=10, left=10, width=800, height=600'
+        showWin("/workfind","작업종류선택",options)
+      })
+      $('#CarFinderShowWin').click(function(){
+        let options = 'top=10, left=10, width=800, height=600'
+        showWin("/carfind","차종선택",options)
+      })
+      let firstTime = 30
+      for(var a = 1; a < 49; a++){
+        let fakeTime = firstTime
+        fakeTime = '0'+fakeTime
+        if(a < 2){
+          fakeTime = '0'+fakeTime
+        }
+        let option_val = moment(fakeTime,'HHmm').format('HHmm')
+        let option_text = moment(option_val,'HHmm').format('HH시간mm분')
+        let newOption = document.createElement('option')
+        newOption.innerHTML = '<span>' + option_text + '</span>'
+        newOption.value = option_val
+        if(option_val == $('#selectInputHidden').val()){
+          newOption.selected = true
+        }
+        document.getElementById("select1").appendChild(newOption); 
+        if(a%2 == 0){
+            firstTime = firstTime + 30
+        }else if(a%2 == 1){
+            firstTime = firstTime + 70
+        }
+      }
+    })
+// Page Wrapper
+#wrapper
+  include masterSidebar.pug
+  // Content Wrapper
+  #content-wrapper.d-flex.flex-column
+    // Main Content
+    #content
+      include masterTopbar.pug
+      // Begin Page Content
+      .container-fluid
+        // Page Heading
+        h1.h3.mb-2.text-gray-800 작업 수정하기
+        p.mb-4
+          | DataTables is a third party plugin that is used to generate the demo table below.
+          | For more information about DataTables, please visit the 
+          a(target='_blank' href='https://datatables.net') official DataTables documentation
+          | .
+        // DataTales Example
+        form#imageTest(action="/workdata/revise", method="POST",enctype="multipart/form-data")
+          .card.shadow.mb-4
+            .card-header.py-3
+              input#work_id(type="hidden" name="work_id" value=data._id)
+              h6.m-0.font-weight-bold.text-primary 작업이름
+              input#workName.form-control.form-control-user(type='text' name="workName"  placeholder='작업이름' value=data.store_work_name)
+              h6.m-0.font-weight-bold.text-primary#WorkCategoryShowWin 작업종류(클릭)
+              input#workCategory.form-control.form-control-user(type='text' name="workCategory"  placeholder='작업종류' readOnly value=work_data_string)
+              input#workCategoryId(type="hidden" name="workCategoryId" value=work_data_id)
+              h6.m-0.font-weight-bold.text-primary#CarFinderShowWin 차종 비워두면 전체(클릭)
+              input#carFinder.form-control.form-control-user(name="carFinder", cols="40", rows="5" readOnly value=car_data_string)
+              input#carFinderId(type="hidden" name="carFinderId" value=car_data_id)
+              h6.m-0.font-weight-bold.text-primary 썸네일 사진
+              div
+                if(data.store_thumbnail.length < 1)
+                else
+                    each imgs in data.store_thumbnail
+                        img(src=imgs style="width:160px; height:100px;")
+              input#workThumbnailImage(type="file" name="workThumbnailImage" accept="image/*;capture=camera" multiple)
+              h6.m-0.font-weight-bold.text-primary 작업소요시간
+              -let workTime = data.store_work_time.replace("시간",'').replace("분","")
+              input#selectInputHidden(type="hidden" value=workTime)
+              select#select1(name="requireTime" value=workTime)
+              h6.m-0.font-weight-bold.text-primary 당일기준 최소예약가능일
+              select#select2(name="requireDay" value=data.store_work_need_day)
+                -for(var b = 0; b < 6 ; b++)
+                    if(data.store_work_need_day == b)
+                        option(value=b selected) !{b}일
+                    else if(b == 0)
+                        option(value=b) 당일
+                    else
+                        option(value=b) !{b}일
+              h6.m-0.font-weight-bold.text-primary 작업 총 가격 // 공임가격 // 총가격만 표시하려면 공임가격칸 비워두기or0
+              div
+                input#workCost.form-control-user(type='Number' name="workCost" placeholder='작업 총 가격' value=data.store_work_total_cost)
+                input#laborCost.form-control-user(type='Number' name="laborCost" placeholder='공임가격' value=data.store_work_labor_cost)
+              h6.m-0.font-weight-bold.text-primary 작업소개
+              textarea(name="summernote", cols="30", rows="10")#summernote !{data.store_work_info}
+              input.btn.btn-primary.btn-user.btn-block(type="submit" value ="수정")
+      // /.container-fluid
+    // End of Main Content
+    include masterFooter.pug
+  // End of Content Wrapper
+  script.
+    $('#summernote').summernote({
+      placeholder: 'Hello stand alone ui',
+      tabsize: 2,
+      minHeight:300,
+      height: 600,
+      lang: "ko-KR",
+      toolbar: [
+      ['style', ['style']],
+      ['font', ['bold', 'underline', 'clear']],
+      ['color', ['color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['table', ['table']],
+      ['insert', ['link', 'picture', 'video']],
+      ['view', ['fullscreen', 'codeview', 'help']]
+      ],
+      callbacks: {	//여기 부분이 이미지를 첨부하는 부분
+        onImageUpload : function(files) {
+          sendFile(files[0],this);
+        },
+      }
+    });
+
+    function sendFile(file,editor) {
+      var data = new FormData();
+      data.append("file", file);
+      console.log(file)
+      $.ajax({
+        type: "POST",
+        url: "/work/image",
+        type: 'POST',
+        data: data,
+        async: false,
+        contentType: false,
+        processData: false, // Don't process the files
+        success: function(data) {
+          console.log(data)
+          $(editor).summernote("insertImage", data.url);
+        }
+      });
+    }
+// End of Page Wrapper
+// Scroll to Top Button
+a.scroll-to-top.rounded(href='#page-top')
+  i.fas.fa-angle-up
+    include masterLogoutModal.pug

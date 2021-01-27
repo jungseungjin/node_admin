@@ -1,0 +1,83 @@
+include master.pug 
+  //검색, 페이지네이션 추가해야함 + 된다면 정렬도 추가?
+  title SB Admin 2 - Dashboard
+  script.
+    document.addEventListener("DOMContentLoaded", function(){
+      var elements = document.getElementsByClassName("data_tr");
+      var myFunction = function() {
+          let data = this.firstChild.lastChild.value;
+          location.href="/storedata/"+data
+      };
+      for (var i = 0; i < elements.length; i++) {
+          elements[i].addEventListener('click', myFunction, false);
+      }
+    })
+// Page Wrapper
+#wrapper
+  include masterSidebar.pug
+  // Content Wrapper
+  #content-wrapper.d-flex.flex-column
+    // Main Content
+    #content
+      include masterTopbar.pug
+      // Begin Page Content
+      .container-fluid
+        // Page Heading
+        h1.h3.mb-2.text-gray-800 Tables
+        p.mb-4
+          | DataTables is a third party plugin that is used to generate the demo table below.
+          | For more information about DataTables, please visit the 
+          a(target='_blank' href='https://datatables.net') official DataTables documentation
+          | .
+        // DataTales Example
+        .card.shadow.mb-4
+          .card-header.py-3
+            h6.m-0.font-weight-bold.text-primary DataTables Example
+          .card-body
+            .table-responsive
+              table#dataTable.table.table-bordered(width='100%' cellspacing='0')
+                thead
+                  tr
+                    th 가게 이름
+                    th 대표자 명
+                    th 위치
+                    th 전화번호
+                    th 공임공개 여부
+                    th 기타
+                tfoot
+                  tr
+                    th 가게 이름
+                    th 대표자 명
+                    th 위치
+                    th 전화번호
+                    th 공임공개 여부
+                    th 기타
+                tbody
+                  if(data.length < 1)
+                    tr
+                      td 데이터 없음.
+                      td 
+                      td 
+                      td 
+                      td 
+                      td 
+                  else
+                    each datas in data
+                      tr.data_tr
+                        td !{datas.store_name}
+                          input(type="hidden",value=datas._id)
+                        td !{datas.store_ceo}
+                        td !{datas.store_address}
+                        td !{datas.store_number}
+                        td !{datas.store_labor_cost_open}
+                        td - 
+      // /.container-fluid
+    // End of Main Content
+    include masterFooter.pug
+  // End of Content Wrapper
+// End of Page Wrapper
+// Scroll to Top Button
+a.scroll-to-top.rounded(href='#page-top')
+  i.fas.fa-angle-up
+    include masterLogoutModal.pug
+    include masterScript.pug

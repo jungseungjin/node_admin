@@ -1,0 +1,89 @@
+doctype html
+head
+  meta(charset='utf-8')
+  meta(http-equiv='X-UA-Compatible' content='IE=edge')
+  meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+  meta(name='description' content='')
+  meta(name='author' content='')
+  title SB Admin 2 - Register
+  // Custom fonts for this template
+  link(href='vendor/fontawesome-free/css/all.min.css' rel='stylesheet' type='text/css')
+  link(href='https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i' rel='stylesheet')
+  // Custom styles for this template
+  link(href='css/sb-admin-2.min.css' rel='stylesheet')
+  script.
+    document.addEventListener("DOMContentLoaded", function(){
+      document.getElementById('RegisterAccount').addEventListener("click",function(){
+        var id = document.getElementById('exampleInputId').value;
+        id = id.replace(/ /gi, ""); 
+        var password = document.getElementById('exampleInputPassword').value;
+        var password2 = document.getElementById('exampleRepeatPassword').value;
+        if(password != password2){
+          alert('비밀번호가 같지 않습니다.')
+        }else{
+          var httpRequest = new XMLHttpRequest();
+
+          if(!httpRequest) {
+            alert('XMLHTTP 인스턴스를 만들 수가 없어요 ㅠㅠ');
+            return false;
+          }
+          httpRequest.onreadystatechange = alertContents;
+          httpRequest.open('POST', '/register');//GET일땨는 GET으로
+          httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');//GET일때는 빼
+          httpRequest.send('userId=' + encodeURIComponent(id) + '&userPassword=' + encodeURIComponent(password) );
+          function alertContents() {
+            if (httpRequest.readyState === XMLHttpRequest.DONE) {
+              if (httpRequest.status === 200) {
+                var response = JSON.parse(httpRequest.responseText);
+                alert(response);
+                if(response == '가입완료'){
+                    location.href="/login"
+                }
+              } else {
+                alert('request에 뭔가 문제가 있어요.');
+              }
+            }
+          }
+        }
+      });
+    });
+
+.container
+  .card.o-hidden.border-0.shadow-lg.my-5
+    .card-body.p-0
+      // Nested Row within Card Body
+      .row
+        .col-lg-5.d-none.d-lg-block.bg-register-image
+        .col-lg-7
+          .p-5
+            .text-center
+              h1.h4.text-gray-900.mb-4 Create an Account!
+            form.user
+              .form-group
+                input#exampleInputId.form-control.form-control-user(type='text' placeholder='Id')
+              .form-group.row
+                .col-sm-6.mb-3.mb-sm-0
+                  input#exampleInputPassword.form-control.form-control-user(type='password' placeholder='Password')
+                .col-sm-6
+                  input#exampleRepeatPassword.form-control.form-control-user(type='password' placeholder='Repeat Password')
+              a.btn.btn-primary.btn-user.btn-block#RegisterAccount
+                | Register Account
+              hr
+              a.btn.btn-google.btn-user.btn-block(href='index.html')
+                i.fab.fa-google.fa-fw
+                |  Register with Google
+              a.btn.btn-facebook.btn-user.btn-block(href='index.html')
+                i.fab.fa-facebook-f.fa-fw
+                |  Register with Facebook
+            hr
+            .text-center
+              a.small(href='forgot-password.html') Forgot Password?
+            .text-center
+              a.small(href='/login') Already have an account? Login!
+// Bootstrap core JavaScript
+script(src='vendor/jquery/jquery.min.js')
+script(src='vendor/bootstrap/js/bootstrap.bundle.min.js')
+// Core plugin JavaScript
+script(src='vendor/jquery-easing/jquery.easing.min.js')
+// Custom scripts for all pages
+script(src='js/sb-admin-2.min.js')
