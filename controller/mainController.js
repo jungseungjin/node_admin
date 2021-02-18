@@ -399,8 +399,10 @@ const uploadFile = (fileName) => {
         var writeStream = fs.createWriteStream("/tmp/" + filename);
         writeStream.filename = filename;
         part.pipe(writeStream);
-        part.on("data", function (chunk) {});
-        part.on("end", function () {
+        part.on("data", function (chunk) {
+          console.log(filename +' data ' + chunk.length)
+        });
+        part.on("end",async function () {
           let Bucket_location;
           if (part.name == "StoreLogoImage") {
             Bucket_location =
@@ -436,7 +438,8 @@ const uploadFile = (fileName) => {
                 Bucket_location;
             }
           }
-          let fileContent = fs.readFileSync("/tmp/" + filename);
+          writeStream.end();
+          let fileContent =await fs.readFileSync( "/tmp/" + filename);
           if (fileContent.length == 0) {
           } else {
             let params = {
@@ -451,8 +454,11 @@ const uploadFile = (fileName) => {
               console.log("File uploaded successfully", data.Location); //여기서 이 값을 변수에 써야함
             });
           }
-          //모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
-          writeStream.end();
+          fs.unlink( "/tmp/" + filename,(err)=>{
+            console.log(err)
+          })
+         // 모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
+          
         });
       });
       // all uploads are completed
@@ -655,14 +661,29 @@ const uploadFile = (fileName) => {
           var writeStream = fs.createWriteStream("/tmp/" + filename);
           writeStream.filename = filename;
           part.pipe(writeStream);
-          part.on("data", function (chunk) {});
-          part.on("end", function () {
+          part.on("data", function (chunk) {
+            console.log(filename +' data ' + chunk.length)});
+          part.on("end",async function () {
             Bucket_location =
               "Work_image/" +
               moment().valueOf().toString() +
               Math.floor(Math.random() * 1000000).toString() +
               ".png";
-            let fileContent = fs.readFileSync("/tmp/" + filename);
+              writeStream.end();
+              let fileContent
+              let timeChk = 0
+              try{
+                fileContent = await fs.readFileSync("/tmp/" + filename);
+              }catch(err){
+                try{
+                  await delay(1000)
+                  timeChk ++
+                  fileContent = await fs.readFileSync("/tmp/" + filename);
+                }catch(err){
+                  fileContent = []
+                }
+              }
+            
             if (fileContent.length == 0) {
               uploadComplete = 1;
             } else {
@@ -679,8 +700,10 @@ const uploadFile = (fileName) => {
                 console.log("File uploaded successfully", data.Location); //여기서 이 값을 변수에 써야함
               });
             }
+            fs.unlink( "/tmp/" + filename,(err)=>{
+              console.log(err)
+            })
             //모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
-            writeStream.end();
           });
         });
 
@@ -938,8 +961,9 @@ const uploadFile = (fileName) => {
           var writeStream = fs.createWriteStream("/tmp/" + filename);
           writeStream.filename = filename;
           part.pipe(writeStream);
-          part.on("data", function (chunk) {});
-          part.on("end", function () {
+          part.on("data", function (chunk) {
+            console.log(filename +' data ' + chunk.length)});
+          part.on("end", async function () {
             if (size > 0) {
               let Bucket_location;
               Bucket_location =
@@ -951,7 +975,8 @@ const uploadFile = (fileName) => {
                 "https://motory.s3.ap-northeast-2.amazonaws.com/" +
                   Bucket_location
               );
-              let fileContent = fs.readFileSync("/tmp/" + filename);
+              writeStream.end();
+              let fileContent = await fs.readFileSync("/tmp/" + filename);
               if (fileContent.length == 0) {
               } else {
                 let params = {
@@ -967,8 +992,10 @@ const uploadFile = (fileName) => {
                 });
               }
             }
+            fs.unlink( "/tmp/" + filename,(err)=>{
+              console.log(err)
+            })
             //모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
-            writeStream.end();
           });
         });
         // all uploads are completed
@@ -1172,6 +1199,9 @@ const uploadFile = (fileName) => {
             }
           }
           for (var b = 0; b < data.store_info_car.length; b++) {
+            if(data.store_info_car[b] == 'all'){
+              continue;
+            }
             let find_data = await Car.info_car.findOne({
               _id: mongoose.Types.ObjectId(data.store_info_car[b]),
             });
