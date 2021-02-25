@@ -1055,7 +1055,6 @@ const uploadFile = (fileName) => {
               return res.redirect("/storedata/" + store_id);
             }
           } else if (req.params.type == "revise") {
-            let StoreData = await Store.info_store.findOne({_id:mongoose.Types.ObjectId(store_id)})
             if (fileArray.length > 0) {
               let chk_data = await Work.store_work.findOneAndUpdate(
                 {
@@ -1082,7 +1081,6 @@ const uploadFile = (fileName) => {
                     //store_work_regdate: moment(), //등록시간
                     store_work_revisedate: moment(), //수정시간
                     //store_work_grade: { type: Number }, //평균평점
-                    store_location : StoreData.store_location
                   },
                 }
               );
@@ -1113,7 +1111,6 @@ const uploadFile = (fileName) => {
                     //store_work_regdate: moment(), //등록시간
                     store_work_revisedate: moment(), //수정시간
                     //store_work_grade: { type: Number }, //평균평점
-                    store_location : StoreData.store_location
                   },
                 }
               );
