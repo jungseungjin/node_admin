@@ -1034,6 +1034,8 @@ const uploadFile = (fileName) => {
             if (chk_data) {
               return res.json({ fail: "중복데이터있음" });
             } else {
+              
+              let StoreData = await Store.info_store.findOne({_id:mongoose.Types.ObjectId(store_id)})
               await Work.store_work({
                 store_id: mongoose.Types.ObjectId(store_id), //info_store의 _id값
                 //store_user_id: { type: String },
@@ -1057,6 +1059,7 @@ const uploadFile = (fileName) => {
                 store_work_regdate: moment(), //등록시간
                 //store_work_revisedate: { type: Date }, //수정시간
                 //store_work_grade: { type: Number }, //평균평점
+                store_location : StoreData.store_location
               }).save();
               return res.redirect("/storedata/" + store_id);
             }
