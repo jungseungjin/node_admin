@@ -400,9 +400,9 @@ const uploadFile = (fileName) => {
         writeStream.filename = filename;
         part.pipe(writeStream);
         part.on("data", function (chunk) {
-          console.log(filename +' data ' + chunk.length)
+          console.log(filename + " data " + chunk.length);
         });
-        part.on("end",async function () {
+        part.on("end", async function () {
           let Bucket_location;
           if (part.name == "StoreLogoImage") {
             Bucket_location =
@@ -439,7 +439,7 @@ const uploadFile = (fileName) => {
             }
           }
           writeStream.end();
-          let fileContent =await fs.readFileSync( "/tmp/" + filename);
+          let fileContent = await fs.readFileSync("/tmp/" + filename);
           if (fileContent.length == 0) {
           } else {
             let params = {
@@ -454,11 +454,10 @@ const uploadFile = (fileName) => {
               console.log("File uploaded successfully", data.Location); //여기서 이 값을 변수에 써야함
             });
           }
-          fs.unlink( "/tmp/" + filename,(err)=>{
-            console.log(err)
-          })
-         // 모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
-          
+          fs.unlink("/tmp/" + filename, (err) => {
+            console.log(err);
+          });
+          // 모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
         });
       });
       // all uploads are completed
@@ -662,28 +661,29 @@ const uploadFile = (fileName) => {
           writeStream.filename = filename;
           part.pipe(writeStream);
           part.on("data", function (chunk) {
-            console.log(filename +' data ' + chunk.length)});
-          part.on("end",async function () {
+            console.log(filename + " data " + chunk.length);
+          });
+          part.on("end", async function () {
             Bucket_location =
               "Work_image/" +
               moment().valueOf().toString() +
               Math.floor(Math.random() * 1000000).toString() +
               ".png";
-              writeStream.end();
-              let fileContent
-              let timeChk = 0
-              try{
+            writeStream.end();
+            let fileContent;
+            let timeChk = 0;
+            try {
+              fileContent = await fs.readFileSync("/tmp/" + filename);
+            } catch (err) {
+              try {
+                await delay(1000);
+                timeChk++;
                 fileContent = await fs.readFileSync("/tmp/" + filename);
-              }catch(err){
-                try{
-                  await delay(1000)
-                  timeChk ++
-                  fileContent = await fs.readFileSync("/tmp/" + filename);
-                }catch(err){
-                  fileContent = []
-                }
+              } catch (err) {
+                fileContent = [];
               }
-            
+            }
+
             if (fileContent.length == 0) {
               uploadComplete = 1;
             } else {
@@ -700,9 +700,9 @@ const uploadFile = (fileName) => {
                 console.log("File uploaded successfully", data.Location); //여기서 이 값을 변수에 써야함
               });
             }
-            fs.unlink( "/tmp/" + filename,(err)=>{
-              console.log(err)
-            })
+            fs.unlink("/tmp/" + filename, (err) => {
+              console.log(err);
+            });
             //모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
           });
         });
@@ -889,6 +889,7 @@ const uploadFile = (fileName) => {
           work_id, //작업의 _id값 ObjectId
           store_work_cost_open, //공임가격 공개여부 true false
           summernote; //통으로 저장 String
+        let store_info_work_middle = []; //작업종류 중분류
         //태그 빠졌음. 나중에 추가할듯
         form.on("field", function (name, value) {
           if (name == "workName") {
@@ -962,7 +963,8 @@ const uploadFile = (fileName) => {
           writeStream.filename = filename;
           part.pipe(writeStream);
           part.on("data", function (chunk) {
-            console.log(filename +' data ' + chunk.length)});
+            console.log(filename + " data " + chunk.length);
+          });
           part.on("end", async function () {
             if (size > 0) {
               let Bucket_location;
@@ -992,9 +994,9 @@ const uploadFile = (fileName) => {
                 });
               }
             }
-            fs.unlink( "/tmp/" + filename,(err)=>{
-              console.log(err)
-            })
+            fs.unlink("/tmp/" + filename, (err) => {
+              console.log(err);
+            });
             //모두 업로드되어 변수명 잡히면 함수하나 실행하든 뭐든 해서 DB에 집어넣기
           });
         });
@@ -1012,6 +1014,12 @@ const uploadFile = (fileName) => {
                 } else {
                   store_info_work_type =
                     store_info_work_type + workData.work_type;
+                }
+                if (
+                  store_info_work_middle.includes(workData.work_sub_type_name)
+                ) {
+                } else {
+                  store_info_work_middle.push(workData.work_sub_type_name);
                 }
               }
             }
@@ -1032,6 +1040,7 @@ const uploadFile = (fileName) => {
                 store_thumbnail: fileArray, //썸네일사진 uri
                 store_work_name: workName, //작업명
                 store_info_work_type: store_info_work_type, //작업종류 대분류
+                store_info_work_middleCategory: store_info_work_middle,
                 store_info_work: workCategoryId, //작업종류 info_work의 _id값
                 store_info_car: carFinderId, //작업 차량 info_car의 _id값
                 store_work_time: requireTime, //작업시간
@@ -1062,6 +1071,7 @@ const uploadFile = (fileName) => {
                     store_thumbnail: fileArray, //썸네일사진 uri
                     store_work_name: workName, //작업명
                     store_info_work_type: store_info_work_type, //작업종류 대분류
+                    store_info_work_middleCategory: store_info_work_middle,
                     store_info_work: workCategoryId, //작업종류 info_work의 _id값
                     store_info_car: carFinderId, //작업 차량 info_car의 _id값
                     store_work_time: requireTime, //작업시간
@@ -1092,6 +1102,7 @@ const uploadFile = (fileName) => {
                     //store_thumbnail: fileArray, //썸네일사진 uri
                     store_work_name: workName, //작업명
                     store_info_work_type: store_info_work_type, //작업종류 대분류
+                    store_info_work_middleCategory: store_info_work_middle,
                     store_info_work: workCategoryId, //작업종류 info_work의 _id값
                     store_info_car: carFinderId, //작업 차량 info_car의 _id값
                     store_work_time: requireTime, //작업시간
@@ -1199,7 +1210,7 @@ const uploadFile = (fileName) => {
             }
           }
           for (var b = 0; b < data.store_info_car.length; b++) {
-            if(data.store_info_car[b] == 'all'){
+            if (data.store_info_car[b] == "all") {
               continue;
             }
             let find_data = await Car.info_car.findOne({
